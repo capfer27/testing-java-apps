@@ -35,8 +35,8 @@ public class WebSecurity {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "api/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilter(getAuthenticationFilter(authenticationManager))
@@ -52,7 +52,7 @@ public class WebSecurity {
 
     protected AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager);
-        filter.setFilterProcessesUrl("/users/login");
+        filter.setFilterProcessesUrl("/api/users/login");
         return filter;
     }
 

@@ -63,7 +63,7 @@ public class UsersControllerIntegrationTest {
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 
         // Act
-        ResponseEntity<UserRest> createdUserDetailsEntity = testRestTemplate.postForEntity("/users",
+        ResponseEntity<UserRest> createdUserDetailsEntity = testRestTemplate.postForEntity("/api/users",
                 request,
                 UserRest.class);
         UserRest createdUserDetails = createdUserDetailsEntity.getBody();
@@ -85,7 +85,7 @@ public class UsersControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /users requires JWT")
+    @DisplayName("GET /api/users requires JWT")
     @Order(2)
     void testGetUsers_whenMissingJWT_returns403() {
         // Arrange
@@ -95,7 +95,7 @@ public class UsersControllerIntegrationTest {
         HttpEntity requestEntity = new HttpEntity(null, headers);
 
         // Act
-        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/users",
+        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
                 HttpMethod.GET,
                 requestEntity,
                 new ParameterizedTypeReference<List<UserRest>>() {
@@ -107,7 +107,7 @@ public class UsersControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("/login works")
+    @DisplayName("/api/login works")
     @Order(3)
     void testUserLogin_whenValidCredentialsProvided_returnsJWTinAuthorizationHeader() throws JSONException {
         // Arrange
@@ -122,12 +122,12 @@ public class UsersControllerIntegrationTest {
         HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString());
 
         // Act
-        ResponseEntity response = testRestTemplate.postForEntity("/users/login",
+        ResponseEntity response = testRestTemplate.postForEntity("/api/users/login",
                 request,
                 null);
 
         authorizationToken = response.getHeaders().
-                getValuesAsList(SecurityConstants.HEADER_STRING).get(0);
+                getValuesAsList(SecurityConstants.HEADER_STRING).getFirst();
 
         // Assert
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode(),
@@ -135,7 +135,7 @@ public class UsersControllerIntegrationTest {
         Assertions.assertNotNull(authorizationToken,
                 "Response should contain Authorization header with JWT");
         Assertions.assertNotNull(response.getHeaders().
-                        getValuesAsList("UserID").get(0),
+                        getValuesAsList("UserID").getFirst(),
                 "Response should contain UserID in a response header");
     }
 
@@ -151,7 +151,7 @@ public class UsersControllerIntegrationTest {
         HttpEntity requestEntity = new HttpEntity(headers);
 
         // Act
-        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/users",
+        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
                 HttpMethod.GET,
                 requestEntity,
                 new ParameterizedTypeReference<List<UserRest>>() {
