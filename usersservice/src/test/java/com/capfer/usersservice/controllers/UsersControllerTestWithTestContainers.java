@@ -1,17 +1,19 @@
 package com.capfer.usersservice.controllers;
 
+import com.capfer.usersservice.security.SecurityConstants;
 import com.capfer.usersservice.service.UsersService;
+import com.capfer.usersservice.shared.UserDto;
 import com.capfer.usersservice.ui.response.UserRest;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -29,6 +31,8 @@ import java.util.List;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UsersControllerTestWithTestContainers {
 
     @Autowired
@@ -36,6 +40,8 @@ public class UsersControllerTestWithTestContainers {
 
     @Autowired
     private UsersService usersService;
+
+    private String authorizationToken;
 
     // @Container - ensure that the postgresql container is created and started automatically before any test method
     // within this class is executed.
@@ -54,6 +60,7 @@ public class UsersControllerTestWithTestContainers {
 //        propertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
 //    }
 
+    @Order(1)
     @Test
     @DisplayName(value = "The PostgreSQL container is created and it's up and running...")
     void test_container_is_running() {
@@ -61,6 +68,7 @@ public class UsersControllerTestWithTestContainers {
         Assertions.assertTrue(postgreSQLContainer.isRunning(), "PostgreSQL container is not running");
     }
 
+    @Order(2)
     @Test
     @DisplayName("The User should be created successfully.")
     //@Order(1)
@@ -100,7 +108,83 @@ public class UsersControllerTestWithTestContainers {
                 "User id should not be empty");
 
         System.out.println("The Created Users: ");
-        usersService.getUsers(1, 5)
-                .forEach(System.out::println);
+        UserDto userDto = usersService.getUser(createdUserDetails.getEmail());
+        System.out.println("userDto = " + userDto);
+    }
+
+    @Test
+    @DisplayName("GET api/users requires JWT")
+    @Order(3)
+    void testGetUsers_whenMissingJWT_returns403() {
+        // Arrange
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+
+        HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
+
+        // Act
+        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                });
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(),
+                "HTTP Status code 403 Forbidden should have been returned");
+    }
+
+    @Test
+    @DisplayName("api/login works")
+    @Order(4)
+    void testUserLogin_whenValidCredentialsProvided_returnsJWTinAuthorizationHeader() throws JSONException {
+        // Arrange
+        JSONObject loginCredentials = new JSONObject();
+        loginCredentials.put("email","test@test.com");
+        loginCredentials.put("password","12345678");
+
+        HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString());
+
+        // Act
+        ResponseEntity<Object> response = testRestTemplate.postForEntity("/api/users/login",
+                request,
+                null);
+
+        authorizationToken = response.getHeaders().
+                getValuesAsList(SecurityConstants.HEADER_STRING).getFirst();
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode(),
+                "HTTP Status code should be 200");
+        Assertions.assertNotNull(authorizationToken,
+                "Response should contain Authorization header with JWT");
+        Assertions.assertNotNull(response.getHeaders().
+                        getValuesAsList("UserID").getFirst(),
+                "Response should contain UserID in a response header");
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("GET api/users works")
+    void testGetUsers_whenValidJWTProvided_returnsUsers() {
+        // Arrange
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authorizationToken);
+
+        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+
+        // Act
+        ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                });
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode(),
+                "HTTP Status code should be 200");
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(1, response.getBody().size(), "There should be exactly 1 user in the list");
     }
 }
