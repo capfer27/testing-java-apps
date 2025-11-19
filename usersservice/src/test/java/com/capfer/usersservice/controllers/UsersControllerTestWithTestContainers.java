@@ -60,6 +60,10 @@ public class UsersControllerTestWithTestContainers {
 //        propertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
 //    }
 
+//    static {
+//        postgreSQLContainer.start();
+//    }
+
     @Order(1)
     @Test
     @DisplayName(value = "The PostgreSQL container is created and it's up and running...")
