@@ -35,8 +35,8 @@ public class WebSecurity {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/users/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilter(getAuthenticationFilter(authenticationManager))

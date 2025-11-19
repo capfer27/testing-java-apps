@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UsersController {
 
     UsersService usersService;
@@ -24,7 +24,7 @@ public class UsersController {
         this.usersService = usersService;
     }
 
-    @PostMapping
+    @PostMapping(path = "/users")
     public UserRest createUser(@RequestBody @Valid UserDetailsRequestModel userDetails) throws Exception {
         ModelMapper modelMapper = new ModelMapper();
         UserDto userDto = new ModelMapper().map(userDetails, UserDto.class);
@@ -34,7 +34,7 @@ public class UsersController {
         return modelMapper.map(createdUser, UserRest.class);
     }
 
-    @GetMapping
+    @GetMapping(path = "/users")
     public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
                                    @RequestParam(value = "limit", defaultValue = "2") int limit) {
         List<UserDto> users = usersService.getUsers(page, limit);
