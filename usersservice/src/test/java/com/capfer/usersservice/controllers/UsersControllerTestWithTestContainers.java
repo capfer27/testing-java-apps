@@ -1,5 +1,7 @@
 package com.capfer.usersservice.controllers;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -22,10 +24,10 @@ public class UsersControllerTestWithTestContainers {
     @Container
     private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17.7")
             .withDatabaseName("test_app")
-            .withUsername("postgres");
-            //.withPassword("");
+            .withUsername("postgres")
+            .withPassword("password");
 
-    // Override the properties defined in the application.properties file.
+    // Override the properties so our app can connect to postgres server that is running in docker container
     @DynamicPropertySource
     public static void overrideProperties(DynamicPropertyRegistry propertyRegistry) {
         propertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
@@ -34,7 +36,9 @@ public class UsersControllerTestWithTestContainers {
     }
 
     @Test
-    void contextLoads() {
-        System.out.println("IsCreated: " + postgreSQLContainer.isCreated());
+    @DisplayName(value = "The PostgreSQL container is created and it's up and running...")
+    void test_container_is_running() {
+        Assertions.assertTrue(postgreSQLContainer.isCreated(), "PostgreSQL container was not created");
+        Assertions.assertTrue(postgreSQLContainer.isRunning(), "PostgreSQL container is not running");
     }
 }
