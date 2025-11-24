@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - 'POSTGRES_DB=booksDB'
+      - 'POSTGRES_PASSWORD=postgres'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '15432:5432'
+    networks:
+      - book-app-net
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s       # How often to run the check
+      timeout: 5s         # Max time for the check to pass
+      retries: 10         # How many times to retry before marking as 'unhealthy'
+      start_period: 10s   # Initial grace period for the container to start up
+  app:
+    image: "caito25/bookapp:v0.0.1" # Replace with your Docker image name
+#    build: bookapp
+    ports:
+      - '8080:8080'
+    networks:
+      - book-app-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "bookapp"
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://postgres:5432/booksDB'
+      SPRING_DATASOURCE_USERNAME: 'postgres'
+      SPRING_DATASOURCE_PASSWORD: 'postgres'
+      SPRING_PROFILES_ACTIVE: docker
+
+networks:
+  book-app-net:
+    driver: "bridge"
+    
+#volumes:
+#  db-data:

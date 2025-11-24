@@ -1,5 +1,7 @@
 package com.capfer.bookapp;
 
+import com.capfer.bookapp.dto.BookDTO;
+import com.capfer.bookapp.mapper.BooksMapper;
 import com.capfer.bookapp.model.Book;
 import com.capfer.bookapp.service.IBookService;
 import org.junit.jupiter.api.*;
@@ -23,14 +25,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Useful Links: https://bell-sw.com/blog/how-to-use-testcontainers-with-spring-boot-applications-for-integration-testing/#:~:text=Let's%20configure%20the%20PostgreSQLContainer.,port;%20@Autowired%20TestRestTemplate%20restTemplate;
- */
-
 //@Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-class BookApplicationTests {
+class BookApplicationTestContainersIntegrationTests {
 
     //@Autowired
     //BookRepository repository;
@@ -47,7 +45,7 @@ class BookApplicationTests {
     @Container
     @ServiceConnection
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(
-            DockerImageName.parse("postgres:17.7")
+            DockerImageName.parse("postgres:latest")
     );
 
     @BeforeAll
@@ -106,12 +104,16 @@ class BookApplicationTests {
     void shouldCreateBook() {
 
         Book book = new Book(4L, "The Catcher in the Rye", "J. D. Salinger", 1951);
-        ResponseEntity<Book> response = restTemplate.exchange("api/books", HttpMethod.POST, new HttpEntity<>(book), Book.class);
+        BookDTO bookDTO = BooksMapper.toDTO(book);
+        ResponseEntity<BookDTO> response = restTemplate.exchange("api/books", HttpMethod.POST, new HttpEntity<>(bookDTO), BookDTO.class);
+
+        //BookDTO book4 = bookService.findById(4L);
+        //assertEquals("J. D. Salinger", book4.author());
 
         int yearExpected = 1951;
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(yearExpected, response.getBody().getPublicationYear());
+        assertEquals(yearExpected, response.getBody().publicationYear());
 
     }
 

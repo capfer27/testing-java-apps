@@ -1,0 +1,33 @@
+Open a shell in the container:
+
+docker exec -it <container_name_or_id> bash
+# or sh, depending on the image
+
+(e.g., docker exec -it db_container bash)
+
+Connect to the PostgreSQL database:
+Once inside the container's shell, run the psql command with your credentials. You may need to switch to the postgres user first.
+bash
+# (Optional) Switch user if necessary
+su postgres 
+
+# Connect to the database
+psql -U <username> -d <database_name>
+
+(e.g., psql -U myuser -d mydatabase)
+Run SQL statements:
+You are now in the psql prompt (e.g., mydatabase=>). You can run SQL commands (which must end with a semicolon ;) or special psql meta-commands (which start with a backslash \).
+List all databases: \l
+Connect to a different database: \c <database_name>
+List tables: \dt
+Run a SQL query: SELECT * FROM my_table;
+Exit the psql shell and container:
+To exit the psql prompt: Type \q and press Enter.
+To exit the container's shell and return to your host terminal: Type exit and press Enter.
+
+Method 2: Run a Single SQL Command Directly
+You can execute a single SQL command without entering the interactive shell using the -c flag with psql. 
+bash
+docker exec -it <container_name_or_id> psql -U <username> -d <database_name> -c "YOUR SQL COMMAND;"
+
+(e.g., docker exec -it db_container psql -U myuser -d mydatabase -c "SELECT * FROM users;")
