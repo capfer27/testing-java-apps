@@ -141,7 +141,7 @@ public class UsersControllerIntegrationTest {
 
     @Test
     @Order(4)
-    @DisplayName("GET /users works")
+    @DisplayName("GET api/users works")
     void testGetUsers_whenValidJWTProvided_returnsUsers() {
         // Arrange
         HttpHeaders headers = new HttpHeaders();
