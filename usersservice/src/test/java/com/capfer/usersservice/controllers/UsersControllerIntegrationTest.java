@@ -92,7 +92,7 @@ public class UsersControllerIntegrationTest {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
 
-        HttpEntity requestEntity = new HttpEntity(null, headers);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
 
         // Act
         ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
@@ -122,7 +122,7 @@ public class UsersControllerIntegrationTest {
         HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString());
 
         // Act
-        ResponseEntity response = testRestTemplate.postForEntity("/api/users/login",
+        ResponseEntity<Object> response = testRestTemplate.postForEntity("/api/users/login",
                 request,
                 null);
 
@@ -145,10 +145,10 @@ public class UsersControllerIntegrationTest {
     void testGetUsers_whenValidJWTProvided_returnsUsers() {
         // Arrange
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setBearerAuth(authorizationToken);
 
-        HttpEntity requestEntity = new HttpEntity(headers);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 
         // Act
         ResponseEntity<List<UserRest>> response = testRestTemplate.exchange("/api/users",
@@ -160,7 +160,8 @@ public class UsersControllerIntegrationTest {
         // Assert
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode(),
                 "HTTP Status code should be 200");
-        Assertions.assertTrue(response.getBody().size() == 1,
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(1, response.getBody().size(),
                 "There should be exactly 1 user in the list");
     }
 }
