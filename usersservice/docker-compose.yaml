@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - 'POSTGRES_DB=users-serviceDB'
+      - 'POSTGRES_PASSWORD=postgres'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432:5432'
+    networks:
+      - users-service-net
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s       # How often to run the check
+      timeout: 5s         # Max time for the check to pass
+      retries: 10         # How many times to retry before marking as 'unhealthy'
+      start_period: 10s   # Initial grace period for the container to start up
+  users-service-app:
+    image: "caito25/usersservice:v0.0.1" # Replace with your Docker image name
+    ports:
+      - '8080:8080'
+    networks:
+      - users-service-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "usersservice"
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://postgres:5432/users-serviceDB'
+      SPRING_DATASOURCE_USERNAME: 'postgres'
+      SPRING_DATASOURCE_PASSWORD: 'postgres'
+      SPRING_PROFILES_ACTIVE: docker
+
+networks:
+  users-service-net:
+    driver: "bridge"
+    
+#volumes:
+#  db-data:
