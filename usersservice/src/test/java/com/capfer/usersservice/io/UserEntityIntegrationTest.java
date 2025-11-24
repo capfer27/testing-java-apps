@@ -26,8 +26,8 @@ public class UserEntityIntegrationTest {
     void setup() {
         userEntity = new UserEntity();
         userEntity.setUserId(UUID.randomUUID().toString());
-        userEntity.setFirstName("Sergey");
-        userEntity.setLastName("Kargopolov");
+        userEntity.setFirstName("Carlos");
+        userEntity.setLastName("Pereira");
         userEntity.setEmail("test@test.com");
         userEntity.setEncryptedPassword("12345678");
     }
@@ -67,10 +67,10 @@ public class UserEntityIntegrationTest {
         newEntity.setFirstName("test");
         newEntity.setLastName("test");
         newEntity.setEncryptedPassword("test");
-        testEntityManager.persistAndFlush(newEntity);
+        UserEntity persisted = testEntityManager.persistAndFlush(newEntity);
 
         // Update existing user entity with the same user id
-        userEntity.setUserId("1");
+        userEntity.setId(1);
 
         // Act & Assert
         assertThrows(PersistenceException.class, ()-> {
