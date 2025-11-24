@@ -19,7 +19,7 @@ services:
       retries: 10         # How many times to retry before marking as 'unhealthy'
       start_period: 10s   # Initial grace period for the container to start up
   users-service-app:
-    image: "caito25/usersservice:v0.0.1" # Replace with your Docker image name
+    image: "caito25/usersservice:v0.0.1"
     ports:
       - '8080:8080'
     networks:
