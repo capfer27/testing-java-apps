@@ -59,7 +59,7 @@ public class UsersControllerWebLayerTest {
         userDto.setUserId(UUID.randomUUID().toString());
         when(usersService.createUser(any(UserDto.class))).thenReturn(userDto);
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/users")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(userDetailsRequestModel));
@@ -90,7 +90,7 @@ public class UsersControllerWebLayerTest {
         // Arrange
         userDetailsRequestModel.setFirstName("");
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/users")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(userDetailsRequestModel));
@@ -112,7 +112,7 @@ public class UsersControllerWebLayerTest {
         // Arrange
         userDetailsRequestModel.setFirstName("a");
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/users")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/api/users")
                 .content(new ObjectMapper().writeValueAsString(userDetailsRequestModel))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
