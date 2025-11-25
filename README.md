@@ -9,20 +9,20 @@ _**В этом репозитории собраны проекты, над ко
 
 **Основные технологии**
 
-Язык: Java 21
-Фреймворк: Spring Boot 3.x, 
-Контейнеризация: Docker, Docker Compose
-Google Container Tools (jib) - для создания оптимизированных образов Docker и OCI для Java приложений
-Базы данных: PostgreSQL
-ORM: Spring Data JPA (Hibernate)
-Аутентификация: Spring Security JWT
+* **Язык**: Java 21
+* **Фреймворк**: Spring Boot 3.x, 
+* **Контейнеризация**: Docker, Docker Compose
+* **Google Container Tools (jib)** - для создания оптимизированных образов Docker и OCI для Java приложений
+* **Базы данных:** PostgreSQL
+* **ORM:** Spring Data JPA (Hibernate)
+* **Аутентификация:** Spring Security JWT
 
 
 **Тестирование**
 
-JUnit 5, Mockito 
-Spring MVC Test
-Testcontainers (интеграционное тестирование БД)
+* JUnit 5, Mockito 
+* Spring MVC Test
+* Testcontainers (интеграционное тестирование БД)
 
 **Сервисы**
 
